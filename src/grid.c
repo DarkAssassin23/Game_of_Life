@@ -4,6 +4,9 @@
 #include "raylib.h"
 #include "grid.h"
 
+/// Swap the front and the back grids
+/// @param front Pointer to the 2D-Array that is the front grid
+/// @param back Pointer to the 2D-Array that is the back grid
 void swap_grids(uint8_t ***front, uint8_t*** back)
 {
     uint8_t ** temp = *front;
@@ -21,24 +24,6 @@ void init_grids(uint8_t ***front, uint8_t*** back, int rows, int cols)
         {
             b[row][col] = 0;
             f[row][col] = rand() % 2;
-        }
-    }
-}
-
-void draw_grid(uint8_t **grid, int rows, int cols, int resolution)
-{
-    for(int row = 0; row < rows; row++)
-    {
-        for(int col = 0; col < cols; col++)
-        {
-            if(grid[row][col])
-            {
-                int c = col * resolution;
-                int r = row * resolution;
-                DrawRectangle(r, c, 
-                        resolution - 1, resolution - 1, 
-                        RAYWHITE);
-            }
         }
     }
 }
@@ -68,7 +53,8 @@ int get_cell_state(uint8_t **grid, int row, int col, int rows, int cols)
     return sum;
 }
 
-void update_grid(uint8_t ***front, uint8_t*** back, int rows, int cols)
+void update_grid(uint8_t ***front, uint8_t*** back, bool paused,
+                int rows, int cols, int resolution)
 {
     uint8_t **f = *front;
     uint8_t **b = *back;
@@ -76,14 +62,27 @@ void update_grid(uint8_t ***front, uint8_t*** back, int rows, int cols)
     {
         for(int col = 0; col < cols; col++)
         {
-            int state = get_cell_state(f, row, col, rows, cols);
-            // ref: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules
-            if(f[row][col] && (state < 2 || state > 3))
-                b[row][col] = 0;
-            else if(!f[row][col] && state == 3)
-                b[row][col] = 1;
-            else
-                b[row][col] = f[row][col];
+            if(f[row][col])
+            {
+                int c = col * resolution;
+                int r = row * resolution;
+                DrawRectangle(r, c, 
+                        resolution - 1, resolution - 1, 
+                        RAYWHITE);
+            }
+            if(!paused)
+            {
+                int state = get_cell_state(f, row, col, rows, cols);
+                // ref: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Rules
+                if(f[row][col] && (state < 2 || state > 3))
+                    b[row][col] = 0;
+                else if(!f[row][col] && state == 3)
+                    b[row][col] = 1;
+                else
+                    b[row][col] = f[row][col];
+            }
         }
     }
+    if(!paused)
+        swap_grids(front, back);
 }

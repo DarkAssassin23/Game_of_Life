@@ -85,15 +85,8 @@ int main(int argc, char** argv) {
 
         ClearBackground(BLACK);
 
-        draw_grid(front_grid, rows, cols, resolution);
-        
-        if(!paused)
-        {
-            update_grid(&front_grid, &back_grid, rows, cols);
-            // Swap the front and the back
-            swap_grids(&front_grid, &back_grid);
-        }
-
+        update_grid(&front_grid, &back_grid, paused, 
+                    rows, cols, resolution);
 
         EndDrawing();
     }
