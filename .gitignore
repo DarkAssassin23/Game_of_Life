@@ -1,0 +1,6 @@
+.DS_Store
+._*
+obj/
+game_of_life
+.config
+compile_flags.txt

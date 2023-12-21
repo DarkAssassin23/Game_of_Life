@@ -1,0 +1,8 @@
+# Basic config file for the Screen Settings
+# a negative value means maximize. Values should be separated by a space
+
+# Note: The width and height are commented out so the defaults will be used
+# width 1200
+# height 800
+resolution 5
+speed 30
