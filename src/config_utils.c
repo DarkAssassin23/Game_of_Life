@@ -1,8 +1,20 @@
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "config_utils.h"
 #include "defaults.h"
+
+char* trim_leading_whitespace(char *str)
+{
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
+
+    if(*str == 0)
+        return str;
+
+    return str;
+}
 
 Config_Screen_Properties parse_config(FILE* config)
 {
@@ -10,7 +22,8 @@ Config_Screen_Properties parse_config(FILE* config)
         DEFAULT_WIDTH,
         DEFAULT_HEIGHT,
         DEFAULT_RES,
-        DEFAULT_FPS
+        DEFAULT_FPS,
+        DEFAULT_THREADS
      };
     char* line = NULL;
     size_t len = 0;
@@ -25,10 +38,12 @@ Config_Screen_Properties parse_config(FILE* config)
         if(line[len - 1] == '\n')
             line[len - 1] = '\0';
 
+        char* result = trim_leading_whitespace(line);
+
         // Get the key and the value
-        char *value = strchr(line, ' ') + 1;
-        char key[(value - line)];
-        strncpy(key, line, sizeof(key) - 1);
+        char *value = strchr(result, ' ') + 1;
+        char key[(value - result)];
+        strncpy(key, result, sizeof(key) - 1);
         key[sizeof(key) - 1] = '\0';
 
         if(strcmp(key, "width") == 0)
@@ -69,6 +84,14 @@ Config_Screen_Properties parse_config(FILE* config)
                 csp.speed = DEFAULT_FPS;
             else
                 csp.speed = speed;
+        }
+        else if(strcmp(key, "threads") == 0)
+        {
+            int threads = strtol(value, NULL, 10);
+            if(threads <= 0)
+                csp.threads = DEFAULT_THREADS;
+            else
+                csp.threads = threads;
         }
     }
     free(line);

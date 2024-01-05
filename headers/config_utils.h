@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 typedef struct {
-    int width, height, resolution, speed;
+    int width, height, resolution, speed, threads;
 } Config_Screen_Properties;
 
 /// Parse the config file and return its properties

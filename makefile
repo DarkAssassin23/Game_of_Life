@@ -21,9 +21,10 @@ else
 	endif
 	ifeq ($(UNAMEOS),Linux)
 		LIBS = -L $(LIBDIR)/ -lraylib -lGL -lm \
-        -lpthread -ldl -lrt
+        -ldl -lrt
 	endif
 endif
+LIBS += -lpthread
 
 .PHONY: default all release debug clean
 

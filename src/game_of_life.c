@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <pthread.h>
 
 #include "raylib.h"
 #include "grid.h"
@@ -16,7 +17,13 @@ int MAX_HEIGHT = 0;
 int MIN_WIDTH = 0;
 int MIN_HEIGHT = 0;
 
-int main(int argc, char** argv) {
+pthread_t* threadPool = NULL;
+thread_args* t_args = NULL;
+int num_threads = DEFAULT_THREADS;
+bool running = true;
+
+int main(int argc, char** argv) 
+{
     // Initialize global screen resolution
     // InitWindow needed to start the GLFW context in order to get monitor dims
     InitWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "The Game of Life"); 
@@ -39,8 +46,15 @@ int main(int argc, char** argv) {
         screenWidth = csp.width;
         resolution = csp.resolution;
         fps = csp.speed;
+        num_threads = csp.threads;
     }
     fclose(cfg);
+
+    if(num_threads > 1)
+    {
+        threadPool = malloc(sizeof(pthread_t) * num_threads);
+        t_args = malloc(sizeof(thread_args) * num_threads);
+    }
 
     InitWindow(screenWidth, screenHeight, "The Game of Life"); 
     if(screenWidth == MAX_WIDTH && screenHeight == MAX_HEIGHT)
@@ -61,14 +75,14 @@ int main(int argc, char** argv) {
 
     srand(time(NULL));
 
-    init_grids(&front_grid, &back_grid, rows, cols);
+    init_grids(&front_grid, &back_grid, rows, cols, resolution);
 
     SetTargetFPS(fps);
 
     while (!WindowShouldClose()) 
     {
         if(IsKeyPressed(KEY_ENTER))
-            init_grids(&front_grid, &back_grid, rows, cols);
+            init_grids(&front_grid, &back_grid, rows, cols, resolution);
 
         if(IsKeyPressed(KEY_SPACE))
             paused = !paused;
@@ -85,13 +99,14 @@ int main(int argc, char** argv) {
 
         ClearBackground(BLACK);
 
-        update_grid(&front_grid, &back_grid, paused, 
-                    rows, cols, resolution);
+        update_grid(&front_grid, &back_grid, paused);
 
         EndDrawing();
     }
+    running = false;
     
     // Free our memeory
+    cleanup_grid();
     for(int row = 0; row < rows; row++)
     {
         free(front_grid[row]);

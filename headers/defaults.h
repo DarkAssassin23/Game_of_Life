@@ -7,6 +7,7 @@
 #define MAX_RES 2 // Note: Lower means smaller squares and more of them
 
 #define DEFAULT_FPS 30
+#define DEFAULT_THREADS 1
 
 extern int MAX_WIDTH;
 extern int MAX_HEIGHT;
